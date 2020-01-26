@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+	  layout:decorate="~{layout}">
+<head>
+<meta charset="UTF-8" />
+</head>
+<body>
+
+	<section class="layout-content" layout:fragment="corpo">
+		<main role="main">
+
+		<section class="jumbotron text-center">
+			<img class="d-block mx-auto" th:src="@{/image/spring-security.png}"
+				width="72" height="72">
+			<div class="container">
+				<h1 class="jumbotron-heading">Clínica Spring Security</h1>
+				<p class="lead text-muted">Médicos e Especialistas</p>
+			</div>
+		</section>
+
+		<div class="album py-5 bg-light">
+			<div class="container">
+
+				<div class="d-flex justify-content-center">
+					<div class="col-md-10">
+						<div th:replace="fragments/alert :: alerta-sucesso"></div>
+						<h2>Consultas Agendadas</h2>
+
+						<table id="table-paciente-historico"
+							class="table table-sm table-striped table-bordered nowrap"
+							style="width: 100%">
+							<thead class="thead-dark">
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">Paciente</th>
+									<th scope="col">Data da Consulta</th>
+									<th scope="col">Médico</th>
+									<th scope="col">Especialidade</th>
+									<th scope="col">Editar</th>
+									<th scope="col">Exluir</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		</main>
+		
+	</section>
+	<script
+		th:src="@{/js/agendamento.js(v=${version})}"
+		th:fragment="js"></script>
+	<script th:inline="javascript" th:fragment="inlinescript">
+		
+	/**
+	 * Datatable histórico de consultas
+	*/
+	$(document).ready(function() {
+	    moment.locale('pt-BR');
+	    var table = $('#table-paciente-historico').DataTable({
+	        searching : false,
+	        lengthMenu : [ 5, 10 ],
+	        processing : true,
+	        serverSide : true,
+	        responsive : true,
+	        order: [2, 'desc'],
+	        ajax : {
+	            url : '/agendamentos/datatables/server/historico',
+	            data : 'data'
+	        },
+	        columns : [
+	            {data : 'id'},
+	            {data : 'paciente.nome'},
+	            {data: 'dataConsulta', render:
+	                function( dataConsulta ) {
+	                    return moment(dataConsulta).format('LLL');
+	                }
+	            },
+	            {data : 'medico.nome'},
+	            {data : 'especialidade.titulo'},
+	            {orderable : false,	data : 'id', "render" : function(id) {
+	                    return '<a class="btn btn-success btn-sm btn-block" href="/agendamentos/editar/consulta/'
+	                            + id + '" role="button"><i class="fas fa-edit"></i></a>';
+	                }
+	            },
+	            {orderable : false,	data : 'id', "render" : function(id) {
+	                    return '<a class="btn btn-danger btn-sm btn-block" href="/agendamentos/excluir/consulta/'
+	                    + id +'" role="button" data-toggle="modal" data-target="#confirm-modal"><i class="fas fa-times-circle"></i></a>';
+	                }
+	            }
+	        ]
+	    });
+	});
+	
+	</script>
+</body>
+</html>
